@@ -1,56 +1,49 @@
-<?php
-session_start();
-include __DIR__ . '/includes/db.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    $stmt = $conn->prepare("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?");
-    $stmt->execute([$email, $password]);
-    $user = $stmt->fetch();
-
-    if ($user) {
-        $_SESSION['nom'] = $user['nom'];
-        $_SESSION['role'] = $user['role'];
-
-        // Redirection selon le rôle
-        if ($user['role'] == 'admin') {
-            header("Location: dashboard_admin.php");
-        } elseif ($user['role'] == 'technicien') {
-            header("Location: dashboard_technicien.php");
-        } else {
-            header("Location: dashboard_utilisateur.php");
-        }
-        exit();
-    } else {
-        $error = "Email ou mot de passe incorrect.";
-    }
-}
-?>
-
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connexion - Parc Informatique OCP</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Connexion - Gestion Parc</title>
 </head>
-<body>
+<body class="bg-primary">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-4">
+                
+                <?php if(isset($_GET['error'])): ?>
+                    <div class="alert alert-danger border-0 shadow-sm mb-3">
+                        Identifiants incorrects.
+                    </div>
+                <?php endif; ?>
 
-<div class="login-container">
-    <h2>🔐 Connexion</h2>
-    <form method="POST" action="">
-        <label for="email">Adresse e-mail</label>
-        <input type="email" id="email" name="email" placeholder="exemple@ocp.ma" required>
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" placeholder="••••••••" required>
-        <button type="submit">Se connecter</button>
-    </form>
+                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                    <div class="card-header">
+                        <h3 class="text-center font-weight-light my-4">Connexion</h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="admin/logic.php?action=login" method="POST">
+                            
+                            <div class="form-floating mb-3">
+                                <input class="form-control" name="login_identity" type="text" placeholder="Email ou Pseudo" required />
+                                <label>Email ou Nom d'utilisateur</label>
+                            </div>
 
-    <?php if(isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
-</div>
+                            <div class="form-floating mb-3">
+                                <input class="form-control" name="password" type="password" placeholder="Mot de passe" required />
+                                <label>Mot de passe</label>
+                            </div>
 
+                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                <a class="small text-decoration-none" href="password_reset.php">Mot de passe oublié ?</a>
+                                <button type="submit" class="btn btn-primary px-4">Se connecter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
 </body>
 </html>
